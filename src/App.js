@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import { db } from './firebase';
+
+
+
+ import { collection, addDoc} from 'firebase/firestore';
+//  import { collection,addDoc, getDoc, getDocs, deleteDoc } from 'firebase/firestore';
+
 
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -6,6 +13,7 @@ import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
+
 
 
 const Formulario = () => {
@@ -95,74 +103,69 @@ const Formulario = () => {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     // Verificar todas las validaciones
     const isValid = Object.values(validations).every((validation) => validation);
-  
+
     // Actualizar las validaciones de todos los campos
     const updatedValidations = {};
-  
+
     for (const key in validations) {
       updatedValidations[key] = formData[key] !== '';
     }
-  
+
     setValidations(updatedValidations);
-  
+
     // Verificar si todos los campos están llenos
     const isFormComplete = Object.values(formData).every((value) => value !== '');
-  
+
     if (isValid && isFormComplete) {
-      console.log(formData); // Mensaje en consola (opcional)
-      // Realizar acción requerida después de enviar el formulario
-
-
-
-
-
+      try {
         // Enviar los datos a Firebase
 
-  
+        const dateCollection= collection(db, "Formulario")
 
+        await addDoc(dateCollection, formData)
 
+        setFormData({
+          nombres: '',
+          apellidos: '',
+          telefono: '',
+          celular: '',
+          email: '',
+          paisResidencia: '',
+          departamento: '',
+          ciudad: '',
+          barrio: '',
+          calle: '',
+          numero: '',
+          apto: '',
+          codigoPostal: '',
+          pais: '',
+          tipoDocumento: '',
+          numeroDocumento: '',
+          fechaNacimiento: null,
+          estadoCivil: '',
+        }); // Vaciar los campos del formulario
 
-
-
-  
-      setFormData({
-        nombres: '',
-        apellidos: '',
-        telefono: '',
-        celular: '',
-        email: '',
-        paisResidencia: '',
-        departamento: '',
-        ciudad: '',
-        barrio: '',
-        calle: '',
-        numero: '',
-        apto: '',
-        codigoPostal: '',
-        pais: '',
-        tipoDocumento: '',
-        numeroDocumento: '',
-        fechaNacimiento: null,
-        estadoCivil: '',
-      }); // Vaciar los campos del formulario
-  
-      // Mostrar mensaje de éxito utilizando react-toastify
-      toast.success('¡Formulario enviado con éxito!');
+        // Mostrar mensaje de éxito utilizando react-toastify
+        toast.success('¡Formulario enviado con éxito!');
+      } catch (error) {
+        console.error('Error al enviar el formulario', error);
+        toast.error('Error al enviar el formulario');
+      }
     } else {
       toast.error('Hay campos inválidos o incompletos. Por favor, verifica los datos ingresados.');
     }
   };
   
   
-  
   const countryOptions = [
     { value: 'Argentina', label: 'Argentina' },
     { value: 'Brasil', label: 'Brasil' },
+    { value: 'Colombia', label: 'Colombia' },
     { value: 'Paraguay', label: 'Paraguay' },
     { value: 'Uruguay', label: 'Uruguay' },
     { value: 'Venezuela', label: 'Venezuela' },
@@ -257,6 +260,7 @@ const Formulario = () => {
               <option value ="">Seleccione un país de residencia</option>
               <option value="Argentina">Argentina</option>
               <option value="Brasil">Brasil</option>
+              <option value="Colombia">Colombia</option>
               <option value="Paraguay">Paraguay</option>
               <option value="Uruguay">Uruguay</option>
               <option value="Venezuela">Venezuela</option>
